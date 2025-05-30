@@ -1,1 +1,7 @@
-Hello:)
+NAMES AND IDS:
+
+HOW TO COMPILE:
+
+HOW TO RUN:
+
+HOW TO USE:
