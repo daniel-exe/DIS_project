@@ -9,14 +9,7 @@ Git repository:
 
     https://github.com/daniel-exe/DIS_project
 
-
-## Requirements:
-Run the code below to install the necessary modules.
-
-    pip install -r requirements.txt
-
-## How to run:
-### Virtual environment
+## Virtual environment
 Create:
 
     python3 -m venv venv
@@ -25,6 +18,12 @@ Run:
 
     source venv/bin/activate
 
+## Requirements:
+Run the code below to install the necessary modules.
+
+    pip install -r requirements.txt
+
+## How to run:
 ### Database init
 1. set the database in __init__.py file.
 2. run schema.sql, schema_ins.sql, schema_upd.sql in your database
