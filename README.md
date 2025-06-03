@@ -48,7 +48,7 @@ Inside psql shell
     ALTER USER postgres WITH PASSWORD '123';
     CREATE DATABASE olympics;
 
-#### Populate the tables
+### Populate the tables
 
     python3 load_data.py
 
