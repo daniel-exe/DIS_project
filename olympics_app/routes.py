@@ -5,6 +5,10 @@ from __init__ import app
 def home():
     return render_template("layout.html", title="Home")
 
+@app.route("/about")
+def about():
+    return render_template("about.html", title="About")
+
 @app.route("/top-countries")
 def top_countries():
     from models import get_top_gold_countries
