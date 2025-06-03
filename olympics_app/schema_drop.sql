@@ -1,0 +1,13 @@
+-- DROP VIEW IF EXISTS vw_tdw;
+-- DROP VIEW IF EXISTS vw_invest_accounts;
+-- DROP VIEW IF EXISTS vw_cd_sum;
+-- DROP VIEW IF EXISTS vw_invest_certificates;
+
+--
+DROP TABLE IF EXISTS Participation;
+DROP TABLE IF EXISTS Event;
+DROP TABLE IF EXISTS Games;
+DROP TABLE IF EXISTS Sport;
+DROP TABLE IF EXISTS Athlete;
+DROP TABLE IF EXISTS Country;
+DROP TABLE IF EXISTS NOC;
