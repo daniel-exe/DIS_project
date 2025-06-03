@@ -1,4 +1,9 @@
 # Olympic dashboard app
+Web-app that can show interesting facts about the Olympics from Athens 1896 to Rio 2016!
+
+Data set:
+
+    https://www.kaggle.com/datasets/heesoo37/120-years-of-olympic-history-athletes-and-results
 
 Made by:
 
@@ -52,6 +57,7 @@ Inside psql shell
 
     python3 load_data.py
 
+(it takes around 10 seconds)
 
 
 
