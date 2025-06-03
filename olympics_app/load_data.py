@@ -48,7 +48,7 @@ print("CSV loaded into staging table.")
 
 # NOC
 cur.execute("""
-    INSERT INTO NOC (noc_code, team_name)
+    INSERT INTO NOC (noc, team_name)
     SELECT DISTINCT noc, team FROM athlete_events
     WHERE noc IS NOT NULL
     ON CONFLICT DO NOTHING;
@@ -56,7 +56,7 @@ cur.execute("""
 
 # Athlete
 cur.execute("""
-    INSERT INTO Athlete (id, name, sex, noc_code)
+    INSERT INTO Athlete (id, name, sex, noc)
     SELECT DISTINCT id, name, sex, noc
     FROM athlete_events
     WHERE id IS NOT NULL

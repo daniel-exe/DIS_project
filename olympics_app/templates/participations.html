@@ -1,0 +1,73 @@
+{% extends "layout.html" %}
+{% block content %}
+<h1>Filter Participations</h1>
+
+<form method="POST" class="mb-4">
+  <div class="form-row">
+    <div class="form-group col-md-2">
+      <label for="medal">Medal</label>
+      <select name="medal" class="form-control">
+        <option value="">Any</option>
+        {% for medal in filters.medals %}
+          <option value="{{ medal }}">{{ medal }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-group col-md-2">
+      <label for="sex">Sex</label>
+      <select name="sex" class="form-control">
+        <option value="">Any</option>
+        {% for s in filters.sexes %}
+          <option value="{{ s }}">{{ s }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-group col-md-4">
+      <label for="sport">Sport</label>
+      <select name="sport" class="form-control">
+        <option value="">Any</option>
+        {% for sport in filters.sports %}
+          <option value="{{ sport }}">{{ sport }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-group col-md-2">
+      <label for="year">Year</label>
+      <select name="year" class="form-control">
+        <option value="">Any</option>
+        {% for y in filters.years %}
+          <option value="{{ y }}">{{ y }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+  <button type="submit" class="btn btn-primary">Apply Filter</button>
+</form>
+
+{% if results %}
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Sex</th>
+      <th>Sport</th>
+      <th>Medal</th>
+      <th>Year</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for r in results %}
+      <tr>
+        <td>{{ r[0] }}</td>
+        <td>{{ r[1] }}</td>
+        <td>{{ r[2] }}</td>
+        <td>{{ r[3] }}</td>
+        <td>{{ r[4] }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+  <p><strong>Be aware the difference between winter and summer Olympics and that not every sport is played every year.</strong></p>
+{% endif %}
+{% endblock content %}

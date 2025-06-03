@@ -20,8 +20,66 @@ def get_top_gold_countries():
         """)
         return cur.fetchall()
 
+def get_filter_options():
+    with conn.cursor() as cur:
+        cur.execute("SELECT DISTINCT medal FROM participation WHERE medal IS NOT NULL")
+        medals = [row[0] if row[0] != 'NA' else 'None' for row in cur.fetchall()]
 
+        cur.execute("SELECT DISTINCT sex FROM athlete")
+        sexes = [row[0] for row in cur.fetchall()]
 
+        cur.execute("SELECT DISTINCT name FROM sport ORDER BY name")
+        sports = [row[0] for row in cur.fetchall()]
+
+        cur.execute("SELECT DISTINCT year FROM games ORDER BY year")
+        years = [row[0] for row in cur.fetchall()]
+
+    return {
+        "medals": medals,
+        "sexes": sexes,
+        "sports": sports,
+        "years": years
+    }
+
+def get_filtered_participations(sex=None, sport=None, medal=None, year=None):
+    query = """
+        SELECT DISTINCT a.name, a.sex, s.name AS sport, p.medal, g.year
+        FROM participation p
+        JOIN athlete a ON p.athlete_id = a.id
+        JOIN event e ON p.event_id = e.id
+        JOIN sport s ON e.sport_id = s.id
+        JOIN games g ON e.games_id = g.id
+    """
+    filters = []
+    params = []
+
+    if sex:
+        filters.append("a.sex = %s")
+        params.append(sex)
+
+    if sport:
+        filters.append("s.name = %s")
+        params.append(sport)
+
+    if medal:
+        filters.append("p.medal = %s")
+        params.append(medal)
+
+    if year:
+        filters.append("g.year = %s")
+        params.append(year)
+
+    if filters:
+        query += " WHERE " + " AND ".join(filters)
+
+    query += " ORDER BY g.year DESC LIMIT 50;"
+
+    print("Query:", query)
+    print("Params:", params)
+
+    with conn.cursor() as cur:
+        cur.execute(query, params)
+        return cur.fetchall()
 
 # class Customers(tuple, UserMixin):
 #     def __init__(self, user_data):

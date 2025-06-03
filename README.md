@@ -57,11 +57,7 @@ Inside psql shell
 
     python3 load_data.py
 
-(it takes around 10 seconds)
-
-
-
-
+(it can take a minute...)
 
 ### Running flask
 #### The python way

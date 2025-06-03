@@ -1,7 +1,7 @@
 \i schema_drop.sql
 
 CREATE TABLE IF NOT EXISTS NOC(
-	noc_code varchar(3) PRIMARY KEY,
+	noc varchar(3) PRIMARY KEY,
     team_name TEXT NOT NULL
 );
 
@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS Athlete(
     id INTEGER PRIMARY KEY,
     name TEXT NOT NULL,
     sex CHAR(1) CHECK (sex IN ('M', 'F')),
-    noc_code CHAR(3) REFERENCES NOC(noc_code)
+    noc CHAR(3) REFERENCES NOC(noc)
 );
 
 CREATE TABLE IF NOT EXISTS Sport(
