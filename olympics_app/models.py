@@ -3,6 +3,8 @@ from datetime import datetime
 from __init__ import conn
 from flask_login import UserMixin
 from psycopg2 import sql
+from flask import request
+import re
 
 
 # QUERY: Top 10 countries by gold medals
@@ -80,6 +82,54 @@ def get_filtered_participations(sex=None, sport=None, medal=None, year=None):
     with conn.cursor() as cur:
         cur.execute(query, params)
         return cur.fetchall()
+
+def classify_input(query):
+    query = query.strip()
+    if re.fullmatch(r'\d{4}', query):
+        return 'year'
+    return 'athlete'
+
+def get_search_results():
+    query = request.args.get('query', '')
+    results = []
+    error = None
+    if query:
+        category = classify_input(query)
+        try:
+            with conn.cursor() as cur:
+                if category == 'year':
+                    cur.execute("""
+                        SELECT DISTINCT a.name, a.sex, s.name AS sport, p.medal, g.year
+                        FROM participation p
+                        JOIN athlete a ON p.athlete_id = a.id
+                        JOIN event e ON p.event_id = e.id
+                        JOIN sport s ON e.sport_id = s.id
+                        JOIN games g ON e.games_id = g.id
+                        WHERE g.year::text ~ %s
+                        ORDER BY g.year DESC LIMIT 50;
+                        """, (query,))
+                else:
+                    cur.execute("""
+                        SELECT DISTINCT a.name, a.sex, s.name AS sport, p.medal, g.year
+                        FROM participation p
+                        JOIN athlete a ON p.athlete_id = a.id
+                        JOIN event e ON p.event_id = e.id
+                        JOIN sport s ON e.sport_id = s.id
+                        JOIN games g ON e.games_id = g.id
+                        WHERE 
+                            a.name ~* %s 
+                        ORDER BY g.year DESC LIMIT 50;
+                        """, (query,))
+                results = cur.fetchall()
+        except Exception as e:
+            error = "The search did not match any participations"
+
+    return (results, error)
+
+
+
+
+
 
 # class Customers(tuple, UserMixin):
 #     def __init__(self, user_data):

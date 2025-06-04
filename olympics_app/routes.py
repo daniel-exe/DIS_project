@@ -42,3 +42,13 @@ def participations():
         )
 
     return render_template("participations.html", title="Athelete Participations", filters=filters, results=results)
+
+@app.route('/search')
+def search():
+    return render_template('search.html')
+
+@app.route('/search/results', methods=['GET'])
+def search_results():
+    from models import classify_input, get_search_results
+    (results, error) = get_search_results()
+    return render_template('results.html', results=results, error=error)
