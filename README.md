@@ -7,7 +7,7 @@ Data set:
 
 Made by:
 
-    KUID   Anna Bartholdy
+    xfm358   Anna Bartholdy Spanggaard
     rjs561 Daniel Nicholas Mølhave
 
 Git repository:
