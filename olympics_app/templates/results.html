@@ -1,6 +1,8 @@
 {% extends "layout.html" %}
 {% block content %}
-<h1>Search Results for: "{{ q }}"</h1>
+<h1>Search Results for: "{{ query }}"</h1>
+
+<a href="/search">Back to Search</a>
 
 {% if error %}
     <p style="color:red;">{{ error }}</p>
@@ -29,8 +31,18 @@
         {% endfor %}
     </tbody>
     </table>
-{% endif %}
 
-<a href="/search">Back to Search</a>
+    <div style="margin-top: 20px;">
+        {% if page > 1 %}
+            <a href="{{ url_for('search_results', query=query, page=page-1) }}">Previous</a>
+        {% endif %}
+
+        Page {{ page }} of {{ total_pages }}
+
+        {% if page < total_pages %}
+            <a href="{{ url_for('search_results', query=query, page=page+1) }}">Next</a>
+        {% endif %}
+    </div>
+{% endif %}
 
 {% endblock content %}

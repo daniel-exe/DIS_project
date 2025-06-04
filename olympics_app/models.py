@@ -91,39 +91,50 @@ def classify_input(query):
 
 def get_search_results():
     query = request.args.get('query', '')
+    page = int(request.args.get('page', 1))
+    total_pages = 1
+    limit = 50
+    offset = (page - 1) * limit
     results = []
-    error = None
+    error = None    
     if query:
         category = classify_input(query)
+
+        if category == 'year':
+            where_condition = 'g.year::text ~ %s'
+        else:
+            where_condition = 'a.name ~* %s'
+
         try:
             with conn.cursor() as cur:
-                if category == 'year':
-                    cur.execute("""
-                        SELECT DISTINCT a.name, a.sex, s.name AS sport, p.medal, g.year
+                cur.execute(f"""
+                    SELECT COUNT(*) FROM(
+                        SELECT DISTINCT a.name, a.sex, s.name, p.medal, g.year 
                         FROM participation p
                         JOIN athlete a ON p.athlete_id = a.id
                         JOIN event e ON p.event_id = e.id
                         JOIN sport s ON e.sport_id = s.id
                         JOIN games g ON e.games_id = g.id
-                        WHERE g.year::text ~ %s
-                        ORDER BY g.year DESC LIMIT 50;
-                        """, (query,))
-                else:
-                    cur.execute("""
-                        SELECT DISTINCT a.name, a.sex, s.name AS sport, p.medal, g.year
-                        FROM participation p
-                        JOIN athlete a ON p.athlete_id = a.id
-                        JOIN event e ON p.event_id = e.id
-                        JOIN sport s ON e.sport_id = s.id
-                        JOIN games g ON e.games_id = g.id
-                        WHERE 
-                            a.name ~* %s 
-                        ORDER BY g.year DESC LIMIT 50;
-                        """, (query,))
+                        WHERE {where_condition}
+                        ) AS subquery
+                    """, (query,))
+                total_results = cur.fetchone()[0]
+                total_pages = max(1, (total_results + limit - 1) // limit)
+                cur.execute(f"""
+                    SELECT DISTINCT a.name, a.sex, s.name AS sport, p.medal, g.year
+                    FROM participation p
+                    JOIN athlete a ON p.athlete_id = a.id
+                    JOIN event e ON p.event_id = e.id
+                    JOIN sport s ON e.sport_id = s.id
+                    JOIN games g ON e.games_id = g.id
+                    WHERE {where_condition}
+                    ORDER BY g.year DESC 
+                    LIMIT %s OFFSET %s;
+                    """, (query, limit, offset))
                 results = cur.fetchall()
         except Exception as e:
             error = "The search did not match any participations"
-    return (query, results, error)
+    return (query, results, error, page, total_pages)
 
 
 
