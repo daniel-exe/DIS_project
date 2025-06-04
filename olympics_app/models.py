@@ -123,7 +123,6 @@ def get_search_results():
                 results = cur.fetchall()
         except Exception as e:
             error = "The search did not match any participations"
-
     return (results, error)
 
 
