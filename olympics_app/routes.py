@@ -50,5 +50,5 @@ def search():
 @app.route('/search/results', methods=['GET'])
 def search_results():
     from models import classify_input, get_search_results
-    (results, error) = get_search_results()
-    return render_template('results.html', results=results, error=error)
+    (q, results, error) = get_search_results()
+    return render_template('results.html', q=q, results=results, error=error)
