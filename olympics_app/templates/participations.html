@@ -9,7 +9,7 @@
       <select name="medal" class="form-control">
         <option value="">Any</option>
         {% for medal in filters.medals %}
-          <option value="{{ medal }}">{{ medal }}</option>
+          <option value="{{ medal }}" {% if medal == request.args.get('medal', '') %}selected{% endif %}>{{ medal }}</option>
         {% endfor %}
       </select>
     </div>
@@ -18,7 +18,7 @@
       <select name="sex" class="form-control">
         <option value="">Any</option>
         {% for s in filters.sexes %}
-          <option value="{{ s }}">{{ s }}</option>
+          <option value="{{ s }}" {% if s == request.args.get('sex', '') %}selected{% endif %}>{{ s }}</option>
         {% endfor %}
       </select>
     </div>
@@ -27,7 +27,7 @@
       <select name="sport" class="form-control">
         <option value="">Any</option>
         {% for sport in filters.sports %}
-          <option value="{{ sport }}">{{ sport }}</option>
+          <option value="{{ sport }}" {% if sport == request.args.get('sport', '') %}selected{% endif %}>{{ sport }}</option>
         {% endfor %}
       </select>
     </div>
@@ -36,7 +36,7 @@
       <select name="year" class="form-control">
         <option value="">Any</option>
         {% for y in filters.years %}
-          <option value="{{ y }}">{{ y }}</option>
+          <option value="{{ y }}" {% if y == request.args.get('year', '') %}selected{% endif %}>{{ y }}</option>
         {% endfor %}
       </select>
     </div>
@@ -45,29 +45,42 @@
 </form>
 
 {% if results %}
-<table class="table table-striped">
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Sex</th>
-      <th>Sport</th>
-      <th>Medal</th>
-      <th>Year</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for r in results %}
+  <table class="table table-striped">
+    <thead>
       <tr>
-        <td>{{ r[0] }}</td>
-        <td>{{ r[1] }}</td>
-        <td>{{ r[2] }}</td>
-        <td>{{ r[3] }}</td>
-        <td>{{ r[4] }}</td>
+        <th>Name</th>
+        <th>Sex</th>
+        <th>Sport</th>
+        <th>Medal</th>
+        <th>Year</th>
       </tr>
-    {% endfor %}
-  </tbody>
-</table>
+    </thead>
+    <tbody>
+      {% for r in results %}
+        <tr>
+          <td>{{ r[0] }}</td>
+          <td>{{ r[1] }}</td>
+          <td>{{ r[2] }}</td>
+          <td>{{ r[3] }}</td>
+          <td>{{ r[4] }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div style="margin-top: 20px;">
+    {% if page > 1 %}
+      <a href="{{ url_for('participations', page=page-1, sex=request.args.get('sex', ''), sport=request.args.get('sport', ''), medal=request.args.get('medal', ''), year=request.args.get('year', '')) }}">Previous</a>
+    {% endif %}
+
+    Page {{ page }} of {{ total_pages }}
+
+    {% if page < total_pages %}
+      <a href="{{ url_for('participations', page=page+1, sex=request.args.get('sex', ''), sport=request.args.get('sport', ''), medal=request.args.get('medal', ''), year=request.args.get('year', '')) }}">Next</a>
+    {% endif %}
+  </div>
 {% else %}
   <p><strong>Be aware the difference between winter and summer Olympics and that not every sport is played every year.</strong></p>
 {% endif %}
 {% endblock content %}
+

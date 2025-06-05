@@ -62,7 +62,7 @@ def get_filter_options():
         "years": years
     }
 
-def get_filtered_participations(sex=None, sport=None, medal=None, year=None):
+def get_filtered_participations(sex=None, sport=None, medal=None, year=None, page=1):
     query = """
         SELECT DISTINCT a.name, a.sex, s.name AS sport, p.medal, g.year
         FROM participation p
@@ -73,6 +73,8 @@ def get_filtered_participations(sex=None, sport=None, medal=None, year=None):
     """
     filters = []
     params = []
+    limit = 50
+    offset = (page - 1) * limit
 
     if sex:
         filters.append("a.sex = %s")
@@ -93,11 +95,16 @@ def get_filtered_participations(sex=None, sport=None, medal=None, year=None):
     if filters:
         query += " WHERE " + " AND ".join(filters)
 
-    query += " ORDER BY g.year DESC LIMIT 50;"
+    with conn.cursor() as cur:
+        cur.execute(" SELECT COUNT(*) FROM( " + query + " ) AS subquery ", params)
+        total_results = cur.fetchone()[0]
+        total_pages = max(1, (total_results + limit - 1) // limit)
+
+    query += f" ORDER BY g.year DESC LIMIT {limit} OFFSET {offset}; "
 
     with conn.cursor() as cur:
         cur.execute(query, params)
-        return cur.fetchall()
+        return (cur.fetchall(), page, total_pages)
 
 def classify_input(query):
     query = query.strip()

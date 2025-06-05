@@ -19,30 +19,41 @@ def leaderboards():
 
 @app.route("/participations", methods=["GET", "POST"])
 def participations():
-    from models import get_filtered_participations, get_filter_options
-
+    from models import get_filter_options, get_filtered_participations
     filters = get_filter_options()
     results = []
-
+    
+    sex = request.args.get("sex", None)
+    sport = request.args.get("sport", None)
+    medal = request.args.get("medal", None)
+    year = request.args.get("year", None)
+    page = int(request.args.get("page", 1))
+    
     if request.method == "POST":
         medal = request.form.get("medal")
         sex = request.form.get("sex")
         sport = request.form.get("sport")
         year = request.form.get("year")
+        page = 1
 
         medal = None if medal == "Any" or medal == "None" else medal
         sex = None if sex == "Any" else sex
         sport = None if sport == "Any" else sport
         year = int(year) if year and year != "Any" else None
 
-        results = get_filtered_participations(
-            sex=sex,
-            sport=sport,
-            medal=medal,
-            year=year
-        )
+    if request.method == "GET" and (sex is None and sport is None and medal is None and year is None):
+        sex = sport = medal = year = None
 
-    return render_template("participations.html", title="Athelete Participations", filters=filters, results=results)
+    results, page, total_pages = get_filtered_participations(
+        sex=sex,
+        sport=sport,
+        medal=medal,
+        year=year,
+        page=page
+    )
+
+    return render_template("participations.html", title="Athlete Participations", filters=filters, results=results, page=page, total_pages=total_pages, sex=sex, sport=sport, medal=medal, year=year)
+
 
 @app.route('/search')
 def search():
