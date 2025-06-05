@@ -28,13 +28,12 @@ Run the code below to install the necessary modules:
 
     pip install -r requirements.txt
 
-## Set up and run the app
-### Database initialization
+## Compile the database
 First, ensure that psql is installed (if installed but unavailable, make sure it is added to your shell profile):
 
     psql --version
 
-#### Set user and password and create database
+### Set user and password and create database
 First create the database:
 
     createdb -U postgres -h 127.0.0.1 olympics
@@ -51,26 +50,6 @@ Then quit the shell
 
     \q
 
-#### Populate the tables
-Navigate to the olympics_app folder and run the schema.sql file in your database:
-
-    psql -U postgres -h 127.0.0.1 -d olympics -f schema.sql
-
-Then run the python file load_data.py (it can take a minute...):
-
-    python3 load_data.py
-
-### Run the app
-To start the web app run the python file run.py:
-
-    python3 run.py
-
-Then open a web browser and navigate to <http://127.0.0.1:5000>
-
-The web app should now be up and running. The landing page gives
-an overview of the features and how to use the web app. Enjoy!
-
-
 #### How to change password and db name with postgreSQL on Linux
 Open psql
 
@@ -80,4 +59,23 @@ Inside psql shell
 
     ALTER USER postgres WITH PASSWORD '123';
     CREATE DATABASE olympics;
+
+### Populate the tables
+Navigate to the olympics_app folder and run the schema.sql file in your database:
+
+    psql -U postgres -h 127.0.0.1 -d olympics -f schema.sql
+
+Then run the python file load_data.py (it can take a minute...):
+
+    python3 load_data.py
+
+## Run the app
+To start the web app run the python file run.py:
+
+    python3 run.py
+
+Then open a web browser and navigate to <http://127.0.0.1:5000>
+
+The web app should now be up and running. The landing page gives
+an overview of the features and how to use the web app. Enjoy!
 
