@@ -1,6 +1,31 @@
 {% extends "layout.html" %}
 {% block content %}
-  <div class="jumbotron">
-    <h1 class="display-4">Welcome to Olympics Explorer!</h1>
-  </div>
-{% endblock %}
+    <h1>Welcome to the Olympic dashboard app!</h1>
+    <p>This is an interactive web-app designed to show you interesting facts about the Olympics with data from Athens 1896 to Rio 2016!</p>
+	<p>You can use web-app for the following:</p>
+	<li><i>Want to see who's number one?</i></li>
+	<ul>Check out the <a href="http://127.0.0.1:5000/leaderboards">leaderboards</a>.</ul>
+	<li><i>Want to see who the silver medal winners of archery in the 1900?</i></li>
+	<ul>Try our <a href="http://127.0.0.1:5000/participations">filter for participations</a> where you can filter by medal, sex, sport and year.</ul>
+	<li><i>Interested in the average height of male basketball gold medal winners in 2008? Or how many medals Denmark won compared to Sweden and Norway in specific years?</i></li>
+	<ul>Play around with our <a href="http://127.0.0.1:5000/interactive-stats">interactive statistics module</a> with a bar graph generator.</ul>
+	<li><i>Do you want to search up a specific athlete or year?</i></li>
+	<ul>Use our <a href="http://127.0.0.1:5000/search">search engine</a> powered by regex!</ul>
+
+
+	<h2>Data set used:</h2>
+	<ul>
+		<a href="www.kaggle.com/datasets/heesoo37/120-years-of-olympic-history-athletes-and-results">120 years of olympic history athletes and results</a>
+	</ul>
+
+	<h2>Made by:</h2>
+	<ul>
+		<li>xfm358   Anna Bartholdy Spanggaard</li>
+		<li>rjs561 Daniel Nicholas Mølhave</li>
+	</ul>
+
+	<h2>Github repository:</h2>
+	<ul>
+		<a href="https://github.com/daniel-exe/DIS_project">DIS Project</a>
+	</ul>
+{% endblock content %}

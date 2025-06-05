@@ -3,17 +3,13 @@ from __init__ import app, conn
 
 @app.route("/")
 def home():
-    return render_template("layout.html", title="Home")
+    return render_template("home.html", title="Home")
 
-@app.route("/about")
-def about():
-    return render_template("about.html", title="About")
-
-@app.route("/top-countries")
-def top_countries():
+@app.route("/leaderboards")
+def leaderboards():
     from models import get_top_gold_countries
     countries = get_top_gold_countries()
-    return render_template("top_countries.html", title="Top Countries", countries=countries)
+    return render_template("leaderboards.html", title="Leaderboards", countries=countries)
 
 @app.route("/participations", methods=["GET", "POST"])
 def participations():
@@ -52,7 +48,7 @@ def search_results():
     (query, results, error, page, total_pages) = get_search_results()
     return render_template('results.html', query=query, results=results, error=error, page=page, total_pages=total_pages)
 
-@app.route("/athlete-stats", methods=["GET", "POST"])
+@app.route("/interactive-stats", methods=["GET", "POST"])
 def interactive_stats():
     from models import get_filter_options, get_sports, get_average_athlete_property
 
