@@ -42,6 +42,16 @@ def participations():
 
     return render_template("participations.html", title="Athelete Participations", filters=filters, results=results)
 
+@app.route('/search')
+def search():
+    return render_template('search.html')
+
+@app.route('/search/results', methods=['GET'])
+def search_results():
+    from models import classify_input, get_search_results
+    (query, results, error, page, total_pages) = get_search_results()
+    return render_template('results.html', query=query, results=results, error=error, page=page, total_pages=total_pages)
+
 @app.route("/athlete-stats", methods=["GET", "POST"])
 def interactive_stats():
     from models import get_filter_options, get_sports, get_average_athlete_property
@@ -63,7 +73,6 @@ def interactive_stats():
         results = get_average_athlete_property(prop, sex, sport, year)
 
     return render_template("interactive_stats.html", title="Average Athlete Stats", filters=filters, sports=sports, results=results)
-
 
 @app.route("/medal-chart-data", methods=["POST"])
 def medal_chart_data():

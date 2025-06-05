@@ -7,7 +7,7 @@ Data set:
 
 Made by:
 
-    xfm358   Anna Bartholdy Spanggaard
+    xfm358 Anna Bartholdy Spanggaard
     rjs561 Daniel Nicholas Mølhave
 
 Git repository:
@@ -37,7 +37,7 @@ First, ensure that psql is installed (if installed but unavailable, make sure it
 #### Set user and password and create database
 First create the database:
 
-    createdb -U postgres -h 127.0.0.1 olympics 
+    createdb -U postgres -h 127.0.0.1 olympics
 
 Open a psql prompt for the user postgres with host 127.0.0.1:
 
