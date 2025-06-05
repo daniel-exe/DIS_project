@@ -110,7 +110,7 @@ def classify_input(query):
     query = query.strip()
     if re.fullmatch(r'\d{4}', query):
         return 'year'
-    return 'athlete'
+    return 'athlete or sport'
 
 def get_search_results():
     query = request.args.get('query', '')
@@ -182,6 +182,8 @@ def get_search_results():
                         LIMIT %s OFFSET %s;
                         """, (query, query, limit, offset))
                     results = cur.fetchall()
+            if results == []:
+                error = "The search did not match any participations"
         except Exception as e:
             error = "The search did not match any participations"
     return (query, results, error, page, total_pages)
