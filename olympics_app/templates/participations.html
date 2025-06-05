@@ -70,14 +70,12 @@
 
   <div style="margin-top: 20px;">
     {% if page > 1 %}
-      <!-- Ensure filters are passed with page parameter -->
       <a href="{{ url_for('participations', page=page-1, sex=sex or '', sport=sport or '', medal=medal or '', year=year or '') }}">Previous</a>
     {% endif %}
 
     Page {{ page }} of {{ total_pages }}
 
     {% if page < total_pages %}
-      <!-- Ensure filters are passed with page parameter -->
       <a href="{{ url_for('participations', page=page+1, sex=sex or '', sport=sport or '', medal=medal or '', year=year or '') }}">Next</a>
     {% endif %}
   </div>

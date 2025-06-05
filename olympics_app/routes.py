@@ -22,52 +22,30 @@ def participations():
     from models import get_filter_options, get_filtered_participations
     filters = get_filter_options()
     results = []
-
-    # Get filters from the request (URL or form)
     sex = request.args.get("sex", None)
     sport = request.args.get("sport", None)
     medal = request.args.get("medal", None)
     year = request.args.get("year", None)
-    page = int(request.args.get("page", 1))  # Default to page 1
+    page = int(request.args.get("page", 1))
 
     if request.method == "POST":
-        # Reset to page 1 when a new filter is applied
         page = 1
-        
-        # Get the filter values from the form
         medal = request.form.get("medal")
         sex = request.form.get("sex")
         sport = request.form.get("sport")
         year = request.form.get("year")
 
-        # Clean the filter values to ensure they're not "Any" or "None"
         medal = None if medal == "Any" or medal == "None" else medal
         sex = None if sex == "Any" else sex
         sport = None if sport == "Any" else sport
         year = int(year) if year and year != "Any" else None
 
-    # If it's a GET request and no filters are provided, clear the filters (i.e., set to None)
     if request.method == "GET" and (sex is None and sport is None and medal is None and year is None):
         sex = sport = medal = year = None  # Clear filters
 
-    # Fetch filtered results with pagination
-    results, page, total_pages = get_filtered_participations(
-        sex=sex,
-        sport=sport,
-        medal=medal,
-        year=year,
-        page=page
-    )
+    (results, page, total_pages) = get_filtered_participations(sex=sex, sport=sport, medal=medal, year=year, page=page)
 
-    return render_template(
-        "participations.html",
-        title="Athlete Participations",
-        filters=filters,
-        results=results,
-        page=page,
-        total_pages=total_pages,
-        sex=sex, sport=sport, medal=medal, year=year  # Pass filters to template
-    )
+    return render_template("participations.html", title="Athlete Participations", filters=filters, results=results, page=page, total_pages=total_pages, sex=sex, sport=sport, medal=medal, year=year)
 
 
 @app.route('/search')
