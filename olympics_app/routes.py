@@ -41,7 +41,7 @@ def participations():
         year = int(year) if year and year != "Any" else None
 
     if request.method == "GET" and (sex is None and sport is None and medal is None and year is None):
-        sex = sport = medal = year = None  # Clear filters
+        sex = sport = medal = year = None
 
     (results, page, total_pages) = get_filtered_participations(sex=sex, sport=sport, medal=medal, year=year, page=page)
 
