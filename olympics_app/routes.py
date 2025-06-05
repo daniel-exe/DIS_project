@@ -1,6 +1,5 @@
-from flask import render_template
-from flask import request
-from __init__ import app
+from flask import Flask, render_template, request, redirect, url_for, jsonify
+from __init__ import app, conn
 
 @app.route("/")
 def home():
@@ -42,3 +41,56 @@ def participations():
         )
 
     return render_template("participations.html", title="Athelete Participations", filters=filters, results=results)
+
+@app.route("/athlete-stats", methods=["GET", "POST"])
+def interactive_stats():
+    from models import get_filter_options, get_sports, get_average_athlete_property
+
+    filters = get_filter_options()
+    sports = get_sports()
+    results = None
+
+    if request.method == "POST":
+        prop = request.form.get("property")
+        sex = request.form.get("sex")
+        sport = request.form.get("sport")
+        year = request.form.get("year")
+
+        sex = None if sex == "Any" else sex
+        sport = None if sport == "Any" else sport
+        year = int(year) if year and year != "Any" else None
+
+        results = get_average_athlete_property(prop, sex, sport, year)
+
+    return render_template("interactive_stats.html", title="Average Athlete Stats", filters=filters, sports=sports, results=results)
+
+
+@app.route("/medal-chart-data", methods=["POST"])
+def medal_chart_data():
+    from models import get_medal_counts_by_country_and_year
+
+    countries = request.json.get("countries", [])
+    years = request.json.get("years", [])
+
+    if not countries:
+        return jsonify({"error": "No countries selected"}), 400
+
+    results = get_medal_counts_by_country_and_year(countries, years)
+
+    counts = {country: {year: 0 for year in years} for country in countries}
+
+    for country, year, count in results:
+        counts[country][year] = count
+
+    response = {
+        "years": years,
+        "data": [
+            {
+                "country": country,
+                "counts": [counts[country].get(year, 0) for year in years]
+            }
+            for country in countries
+        ]
+    }
+
+    return jsonify(response)
