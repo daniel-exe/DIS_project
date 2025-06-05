@@ -9,7 +9,7 @@
       <select name="medal" class="form-control">
         <option value="">Any</option>
         {% for medal in filters.medals %}
-          <option value="{{ medal }}" {% if medal == request.args.get('medal', '') %}selected{% endif %}>{{ medal }}</option>
+          <option value="{{ medal }}" {% if medal == request.args.get('medal', request.form.get('medal', '')) %}selected{% endif %}>{{ medal }}</option>
         {% endfor %}
       </select>
     </div>
@@ -18,7 +18,7 @@
       <select name="sex" class="form-control">
         <option value="">Any</option>
         {% for s in filters.sexes %}
-          <option value="{{ s }}" {% if s == request.args.get('sex', '') %}selected{% endif %}>{{ s }}</option>
+          <option value="{{ s }}" {% if s == request.args.get('sex', request.form.get('sex', '')) %}selected{% endif %}>{{ s }}</option>
         {% endfor %}
       </select>
     </div>
@@ -27,7 +27,7 @@
       <select name="sport" class="form-control">
         <option value="">Any</option>
         {% for sport in filters.sports %}
-          <option value="{{ sport }}" {% if sport == request.args.get('sport', '') %}selected{% endif %}>{{ sport }}</option>
+          <option value="{{ sport }}" {% if sport == request.args.get('sport', request.form.get('sport', '')) %}selected{% endif %}>{{ sport }}</option>
         {% endfor %}
       </select>
     </div>
@@ -36,7 +36,7 @@
       <select name="year" class="form-control">
         <option value="">Any</option>
         {% for y in filters.years %}
-          <option value="{{ y }}" {% if y == request.args.get('year', '') %}selected{% endif %}>{{ y }}</option>
+          <option value="{{ y }}" {% if y == request.args.get('year', request.form.get('year', '')) %}selected{% endif %}>{{ y }}</option>
         {% endfor %}
       </select>
     </div>
@@ -70,17 +70,23 @@
 
   <div style="margin-top: 20px;">
     {% if page > 1 %}
-      <a href="{{ url_for('participations', page=page-1, sex=request.args.get('sex', ''), sport=request.args.get('sport', ''), medal=request.args.get('medal', ''), year=request.args.get('year', '')) }}">Previous</a>
+      <!-- Ensure filters are passed with page parameter -->
+      <a href="{{ url_for('participations', page=page-1, sex=sex or '', sport=sport or '', medal=medal or '', year=year or '') }}">Previous</a>
     {% endif %}
 
     Page {{ page }} of {{ total_pages }}
 
     {% if page < total_pages %}
-      <a href="{{ url_for('participations', page=page+1, sex=request.args.get('sex', ''), sport=request.args.get('sport', ''), medal=request.args.get('medal', ''), year=request.args.get('year', '')) }}">Next</a>
+      <!-- Ensure filters are passed with page parameter -->
+      <a href="{{ url_for('participations', page=page+1, sex=sex or '', sport=sport or '', medal=medal or '', year=year or '') }}">Next</a>
     {% endif %}
   </div>
+
 {% else %}
   <p><strong>Be aware the difference between winter and summer Olympics and that not every sport is played every year.</strong></p>
 {% endif %}
 {% endblock content %}
+
+
+
 
