@@ -1,23 +1,56 @@
 {% extends "layout.html" %}
 {% block content %}
-    <h1>Top 10 Countries by Gold Medals</h1>
+    <h1 class="mb-4">Olympic Leaderboards</h1>
 
-    <div class="content-section">
-      <table class="table table-striped">
-        <thead>
-          <tr>
-            <th scope="col">Country (NOC)</th>
-            <th scope="col">Gold Medals</th>
-          </tr>
-        </thead>
-        <tbody>
-        {% for country in countries %}
-          <tr>
-            <td>{{ country[0] }}</td>
-            <td>{{ country[1] }}</td>
-          </tr>
-        {% endfor %}
-        </tbody>
-      </table>
-    </div>
+    <section class="mb-5">
+        <h2>Top 10 Countries by Gold Medals</h2>
+        <div class="content-section">
+            <table class="table table-striped table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">Country (NOC)</th>
+                        <th scope="col">Gold Medals</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for country in countries %}
+                    <tr>
+                        <td>{{ country[0] }}</td>
+                        <td>{{ country[1] }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section>
+        <h2>Top 10 Athletes by Total Medals</h2>
+        <div class="content-section">
+            <table class="table table-striped table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">Athlete</th>
+                        <th scope="col">NOC</th>
+                        <th scope="col">Gold</th>
+                        <th scope="col">Silver</th>
+                        <th scope="col">Bronze</th>
+                        <th scope="col">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for athlete in athletes %}
+                    <tr>
+                        <td>{{ athlete[0] }}</td>
+                        <td>{{ athlete[1] }}</td>
+                        <td>{{ athlete[2] }}</td>
+                        <td>{{ athlete[3] }}</td>
+                        <td>{{ athlete[4] }}</td>
+                        <td><strong>{{ athlete[5] }}</strong></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
 {% endblock content %}

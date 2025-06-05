@@ -7,9 +7,15 @@ def home():
 
 @app.route("/leaderboards")
 def leaderboards():
-    from models import get_top_gold_countries
+    from models import get_top_gold_countries, get_top_athletes
     countries = get_top_gold_countries()
-    return render_template("leaderboards.html", title="Leaderboards", countries=countries)
+    athletes = get_top_athletes()
+    return render_template(
+        "leaderboards.html",
+        title="Leaderboards",
+        countries=countries,
+        athletes=athletes
+    )
 
 @app.route("/participations", methods=["GET", "POST"])
 def participations():

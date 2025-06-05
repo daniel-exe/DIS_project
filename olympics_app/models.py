@@ -24,6 +24,23 @@ def get_top_gold_countries():
         """)
         return cur.fetchall()
 
+def get_top_athletes():
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT a.name, a.noc AS noc_code,
+                COUNT(DISTINCT CASE WHEN p.medal = 'Gold' THEN e.id END) AS gold,
+                COUNT(DISTINCT CASE WHEN p.medal = 'Silver' THEN e.id END) AS silver,
+                COUNT(DISTINCT CASE WHEN p.medal = 'Bronze' THEN e.id END) AS bronze,
+                COUNT(DISTINCT CASE WHEN p.medal != 'NA' THEN e.id END) AS total
+            FROM athlete a
+            JOIN participation p ON a.id = p.athlete_id
+            JOIN event e ON p.event_id = e.id
+            GROUP BY a.id, a.name, a.noc
+            ORDER BY total DESC, gold DESC, silver DESC, bronze DESC
+            LIMIT 10;
+        """)
+        return cur.fetchall()
+
 def get_filter_options():
     with conn.cursor() as cur:
         cur.execute("SELECT DISTINCT medal FROM participation WHERE medal IS NOT NULL")
