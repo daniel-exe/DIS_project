@@ -50,6 +50,8 @@ Then quit the shell
 
     \q
 
+Once the password has been set, you will have to enter this password whenever opening a psql prompt for the user postgres
+
 #### How to change password and db name with postgreSQL on Linux
 Open psql
 
