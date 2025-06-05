@@ -9,12 +9,16 @@ from psycopg2 import sql
 def get_top_gold_countries():
     with conn.cursor() as cur:
         cur.execute("""
-            SELECT n.noc, COUNT(*) AS gold_count
-            FROM participation p
-            JOIN athlete a ON p.athlete_id = a.id
-            JOIN noc n ON a.noc = n.noc
-            WHERE p.medal = 'Gold'
-            GROUP BY n.noc
+            SELECT noc, COUNT(*) AS gold_count
+            FROM (
+                SELECT DISTINCT a.noc, e.id AS event_id, g.year, p.medal
+                FROM participation p
+                JOIN athlete a ON p.athlete_id = a.id
+                JOIN event e ON p.event_id = e.id
+                JOIN games g ON e.games_id = g.id
+                WHERE p.medal = 'Gold'
+            ) AS unique_gold_medals
+            GROUP BY noc
             ORDER BY gold_count DESC
             LIMIT 10;
         """)
@@ -74,211 +78,76 @@ def get_filtered_participations(sex=None, sport=None, medal=None, year=None):
 
     query += " ORDER BY g.year DESC LIMIT 50;"
 
-    print("Query:", query)
-    print("Params:", params)
-
     with conn.cursor() as cur:
         cur.execute(query, params)
         return cur.fetchall()
 
-# class Customers(tuple, UserMixin):
-#     def __init__(self, user_data):
-#         self.CPR_number = user_data[0]
-#         self.risktype = False
-#         self.password = user_data[2]
-#         self.name = user_data[3]
-#         self.address = user_data[4]
-#         self.role = "customer"
+def get_sports():
+    with conn.cursor() as cur:
+        cur.execute("SELECT DISTINCT name FROM sport ORDER BY name")
+        return [row[0] for row in cur.fetchall()]
 
-#     def get_id(self):
-#        return (self.CPR_number)
+def get_average_athlete_property(prop, sex=None, sport=None, year=None):
+    allowed = {"height", "weight", "age"}
+    if prop not in allowed:
+        return None
 
+    query = f"""
+        SELECT ROUND(AVG(p.{prop})::numeric, 2)
+        FROM participation p
+        JOIN athlete a ON p.athlete_id = a.id
+        JOIN event e ON p.event_id = e.id
+        JOIN sport s ON e.sport_id = s.id
+        JOIN games g ON e.games_id = g.id
+    """
 
-# class Employees(tuple, UserMixin):
-#     def __init__(self, employee_data):
-#         self.id = employee_data[0]
-#         self.name = employee_data[1]
-#         self.password = employee_data[2]
-#         self.role = "employee"
+    filters = []
+    params = []
 
-#     def get_id(self):
-#        return (self.id)
+    if sex:
+        filters.append("a.sex = %s")
+        params.append(sex)
+    if sport:
+        filters.append("s.name = %s")
+        params.append(sport)
+    if year:
+        filters.append("g.year = %s")
+        params.append(year)
 
-# class CheckingAccount(tuple):
-#     def __init__(self, user_data):
-#         self.id = user_data[0]
-#         self.create_date = user_data[1]
-#         self.CPR_number = user_data[2]
-#         self.amount = 0
+    if filters:
+        query += " WHERE " + " AND ".join(filters)
 
-# class InvestmentAccount(tuple):
-#     def __init__(self, user_data):
-#         self.id = user_data[0]
-#         self.start_date = user_data[1]
-#         self.maturity_date = user_data[2]
-#         self.amount = 0
+    with conn.cursor() as cur:
+        cur.execute(query, params)
+        avg = cur.fetchone()[0]
+        return avg
 
-# class Transfers(tuple):
-#     def __init__(self, user_data):
-#         self.id = user_data[0]
-#         self.amount = user_data[1]
-#         self.transfer_date = user_data[2]
+def get_medal_counts_by_country_and_year(countries, years=None):
+    placeholders = ','.join(['%s'] * len(countries))
+    params = [c.upper() for c in countries]
 
+    query = f"""
+        SELECT noc, year, COUNT(*) AS medal_count
+        FROM (
+            SELECT DISTINCT a.noc, g.year, e.id AS event_id, p.medal
+            FROM participation p
+            JOIN athlete a ON p.athlete_id = a.id
+            JOIN event e ON p.event_id = e.id
+            JOIN games g ON e.games_id = g.id
+            WHERE p.medal IN ('Gold', 'Silver', 'Bronze') AND a.noc IN ({placeholders})
+    """
 
+    if years:
+        year_placeholders = ','.join(['%s'] * len(years))
+        query += f" AND g.year IN ({year_placeholders})"
+        params.extend(years)
 
+    query += """
+        ) AS unique_medals
+        GROUP BY noc, year
+        ORDER BY year, noc
+    """
 
-
-# def insert_Customers(name, CPR_number, password):
-#     cur = conn.cursor()
-#     sql = """
-#     INSERT INTO Customers(name, CPR_number, password)
-#     VALUES (%s, %s, %s)
-#     """
-#     cur.execute(sql, (name, CPR_number, password))
-#     # Husk commit() for INSERT og UPDATE, men ikke til SELECT!
-#     conn.commit()
-#     cur.close()
-
-# def select_Customer(CPR_number):
-#     cur = conn.cursor()
-#     sql = """
-#     SELECT * FROM Customers
-#     WHERE CPR_number = %s
-#     """
-#     cur.execute(sql, (CPR_number,))
-#     user = Customers(cur.fetchone()) if cur.rowcount > 0 else None;
-#     cur.close()
-#     return user
-
-# #cus-1-3-2024
-# def select_customer_direct(CPR_number):
-#     #SELECT cpr_number, name, address FROM Customers
-#     cur = conn.cursor()
-#     sql = """
-#     SELECT *
-#      FROM Customers
-#     WHERE CPR_number = %s
-#     AND DIRECT IS TRUE
-#     """
-#     cur.execute(sql, (CPR_number,))
-#     user = Customers(cur.fetchone()) if cur.rowcount > 0 else None;
-#     cur.close()
-#     return user
-
-# def select_Employee(id):
-#     cur = conn.cursor()
-#     sql = """
-#     SELECT * FROM Employees
-#     WHERE id = %s
-#     """
-#     cur.execute(sql, (id,))
-#     user = Employees(cur.fetchone()) if cur.rowcount > 0 else None;
-#     cur.close()
-#     return user
-
-
-# def update_CheckingAccount(amount, CPR_number):
-#     cur = conn.cursor()
-#     sql = """
-#     UPDATE CheckingAccount
-#     SET amount = %s
-#     WHERE CPR_number = %s
-#     """
-#     cur.execute(sql, (amount, CPR_number))
-#     # Husk commit() for INSERT og UPDATE, men ikke til SELECT!
-#     conn.commit()
-#     cur.close()
-
-# def transfer_account(date, amount, from_account, to_account):
-#     cur = conn.cursor()
-#     sql = """
-#     INSERT INTO Transfers(transfer_date, amount, from_account, to_account)
-#     VALUES (%s, %s, %s, %s)
-#     """
-#     cur.execute(sql, (date, amount, from_account, to_account))
-#     # Husk commit() for INSERT og UPDATE, men ikke til SELECT!
-#     conn.commit()
-#     cur.close()
-
-# #cus-1-3-2024
-# def select_customers_direct():
-#     cur = conn.cursor()
-#     sql = """
-#     SELECT
-#       c.name customer
-#     , cpr_number
-#     , address
-#     FROM customers c
-# 	WHERE direct IS TRUE
-#     ;
-#     """
-#     cur.execute(sql)
-#     tuple_resultset = cur.fetchall()
-#     cur.close()
-#     return tuple_resultset
-
-# def select_cus_accounts(cpr_number):
-#     cur = conn.cursor()
-#     sql = """
-#     SELECT
-#       e.name employee
-#     , c.name customer
-#     , cpr_number
-#     , account_number
-#     FROM manages m
-#       NATURAL JOIN accounts
-#       NATURAL JOIN customers c
-#       LEFT OUTER JOIN employees e ON m.emp_cpr_number = e.id
-# 	WHERE cpr_number = %s
-#     ;
-#     """
-#     cur.execute(sql, (cpr_number,))
-#     tuple_resultset = cur.fetchall()
-#     cur.close()
-#     return tuple_resultset
-
-
-# def select_cus_investments(cpr_number):
-#     cur = conn.cursor()
-#     sql = """
-#     SELECT i.account_number, a.cpr_number, a.created_date
-#     FROM investmentaccounts i
-#     JOIN accounts a ON i.account_number = a.account_number
-#     WHERE a.cpr_number = %s
-#     """
-#     cur.execute(sql, (cpr_number,))
-#     tuple_resultset = cur.fetchall()
-#     cur.close()
-#     return tuple_resultset
-
-# def select_cus_investments_with_certificates(cpr_number):
-#     # TODO-CUS employee id is parameter
-#     cur = conn.cursor()
-#     sql = """
-#     SELECT i.account_number, a.cpr_number, a.created_date
-#     , cd.cd_number, start_date, maturity_date, rate, amount
-#     FROM investmentaccounts i
-#     JOIN accounts a ON i.account_number = a.account_number
-#     JOIN certificates_of_deposit cd ON i.account_number = cd.account_number
-#     WHERE a.cpr_number = %s
-#     ORDER BY 1
-#     """
-#     cur.execute(sql, (cpr_number,))
-#     tuple_resultset = cur.fetchall()
-#     cur.close()
-#     return tuple_resultset
-
-# def select_cus_investments_certificates_sum(cpr_number):
-#     # TODO-CUS employee id is parameter - DONE
-#     cur = conn.cursor()
-#     sql = """
-#     SELECT account_number, cpr_number, created_date, sum
-#     FROM vw_cd_sum
-#     WHERE cpr_number = %s
-#     GROUP BY account_number, cpr_number, created_date, sum
-#     ORDER BY account_number
-#     """
-#     cur.execute(sql, (cpr_number,))
-#     tuple_resultset = cur.fetchall()
-#     cur.close()
-#     return tuple_resultset
+    with conn.cursor() as cur:
+        cur.execute(query, params)
+        return cur.fetchall()

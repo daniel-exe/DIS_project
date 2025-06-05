@@ -1,0 +1,157 @@
+{% extends "layout.html" %}
+{% block content %}
+<h1>Average Athlete Statistics</h1>
+
+<form method="POST" class="mb-4">
+  <div class="form-row">
+    <div class="form-group col-md-3">
+      <label for="property">Property</label>
+      <select name="property" class="form-control">
+        <option value="height">Height</option>
+        <option value="weight">Weight</option>
+        <option value="age">Age</option>
+      </select>
+    </div>
+
+    <div class="form-group col-md-2">
+      <label for="sex">Sex</label>
+      <select name="sex" class="form-control">
+        <option value="">Any</option>
+        <option value="M">M</option>
+        <option value="F">F</option>
+      </select>
+    </div>
+
+    <div class="form-group col-md-4">
+      <label for="sport">Sport</label>
+      <select name="sport" class="form-control">
+        <option value="">Any</option>
+        {% for sport in sports %}
+          <option value="{{ sport }}">{{ sport }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-group col-md-2">
+      <label for="year">Year</label>
+      <select name="year" class="form-control">
+        <option value="">Any</option>
+        {% for y in filters.years %}
+          <option value="{{ y }}">{{ y }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+
+  <button type="submit" class="btn btn-primary">Compute Average</button>
+</form>
+
+{% if results is not none %}
+  <h4>Average: {{ results }}</h4>
+{% else %}
+  <p>Use the form to calculate average athlete properties by category.</p>
+{% endif %}
+<h1>Compare Medal Counts by Year and Country</h1>
+<div class="form-group">
+  <label><strong>Choose countries:</strong></label><br>
+<input type="checkbox" class="country-checkbox" value="ARG"> Argentina
+<input type="checkbox" class="country-checkbox" value="BRA"> Brazil
+<input type="checkbox" class="country-checkbox" value="CAN"> Canada
+<input type="checkbox" class="country-checkbox" value="CHN"> China
+<input type="checkbox" class="country-checkbox" value="CUB"> Cuba
+<input type="checkbox" class="country-checkbox" value="DEN"> Denmark
+<input type="checkbox" class="country-checkbox" value="EGY"> Egypt
+<input type="checkbox" class="country-checkbox" value="ESP"> Spain
+<input type="checkbox" class="country-checkbox" value="ETH"> Ethiopia
+<input type="checkbox" class="country-checkbox" value="FRA"> France
+<input type="checkbox" class="country-checkbox" value="GBR"> United Kingdom
+<input type="checkbox" class="country-checkbox" value="GER"> Germany
+<input type="checkbox" class="country-checkbox" value="IND"> India
+<input type="checkbox" class="country-checkbox" value="IRI"> Iran
+<input type="checkbox" class="country-checkbox" value="ISR"> Israel
+<input type="checkbox" class="country-checkbox" value="ITA"> Italy
+<input type="checkbox" class="country-checkbox" value="JAM"> Jamaica
+<input type="checkbox" class="country-checkbox" value="JPN"> Japan
+<input type="checkbox" class="country-checkbox" value="KAZ"> Kazakhstan
+<input type="checkbox" class="country-checkbox" value="KEN"> Kenya
+<input type="checkbox" class="country-checkbox" value="KOR"> South Korea
+<input type="checkbox" class="country-checkbox" value="MEX"> Mexico
+<input type="checkbox" class="country-checkbox" value="MDA"> Moldova
+<input type="checkbox" class="country-checkbox" value="NED"> Netherlands
+<input type="checkbox" class="country-checkbox" value="NGR"> Nigeria
+<input type="checkbox" class="country-checkbox" value="NOR"> Norway
+<input type="checkbox" class="country-checkbox" value="RSA"> South Africa
+<input type="checkbox" class="country-checkbox" value="RUS"> Russia
+<input type="checkbox" class="country-checkbox" value="SWE"> Sweden
+<input type="checkbox" class="country-checkbox" value="USA"> United States
+</div>
+
+<div class="form-group">
+  <label><strong>Choose years:</strong></label><br>
+  <button type="button" id="select-all-years" class="btn btn-sm btn-outline-primary">Select All</button>
+  <button type="button" id="deselect-all-years" class="btn btn-sm btn-outline-secondary">Deselect All</button><br>
+  {% for y in filters.years %}
+    <input type="checkbox" class="year-checkbox" value="{{ y }}"> {{ y }}
+  {% endfor %}
+</div>
+
+<button id="load-chart" class="btn btn-success">Show Chart</button>
+
+<canvas id="medalChart" width="1000" height="600"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  document.getElementById("select-all-years").onclick = () => {
+    document.querySelectorAll(".year-checkbox").forEach(cb => cb.checked = true);
+  };
+  document.getElementById("deselect-all-years").onclick = () => {
+    document.querySelectorAll(".year-checkbox").forEach(cb => cb.checked = false);
+  };
+
+  document.getElementById("load-chart").onclick = () => {
+    const countries = Array.from(document.querySelectorAll(".country-checkbox:checked")).map(cb => cb.value);
+    const years = Array.from(document.querySelectorAll(".year-checkbox:checked")).map(cb => parseInt(cb.value));
+
+    fetch("/medal-chart-data", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ countries, years })
+    })
+    .then(res => res.json())
+    .then(data => {
+      const labels = data.years.map(String);
+      const datasets = data.data.map((entry, idx) => ({
+        label: entry.country,
+        data: entry.counts,
+        backgroundColor: `hsl(${(idx * 60) % 360}, 70%, 60%)`
+      }));
+
+      const ctx = document.getElementById("medalChart").getContext("2d");
+      if (window.medalChart instanceof Chart) {
+        window.medalChart.destroy();
+      }
+      console.log("Creating chart with datasets:", datasets);
+      window.medalChart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: labels,
+          datasets: datasets
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            title: {
+              display: true,
+              text: "Medals Over Time by Country"
+            }
+          },
+          scales: {
+            x: { stacked: false },
+            y: { beginAtZero: true }
+          }
+        }
+      });
+    });
+  };
+</script>
+{% endblock content %}
